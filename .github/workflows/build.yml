@@ -28,7 +28,7 @@ jobs:
         recipe:
           # !! Add your recipes here
           #- DX-GTS.yml
-          #- DX.yml
+          - DX.yml
           - bazzite.yml
     steps:
       # the build is fully handled by the reusable github action
