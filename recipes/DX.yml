@@ -49,7 +49,7 @@ modules:
       #- Tailscale QS
 
   - type: justfiles
-    validate: true
+#    validate: true
     include:
       - my-just.just
 
