@@ -16,7 +16,6 @@ modules:
     base: asus # if not specified, classic "main" base is used by default
     install:
       - framework-laptop
-      - ryzen-smu
   - type: files
     files:
       - source: system
