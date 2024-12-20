@@ -48,6 +48,11 @@ image-version: stable # latest is also supported if you want new updates ASAP
       - OpenWeather Refined
       #- Tailscale QS
 
+  - type: justfiles
+    validate: true
+    include:
+      - my-just.just
+
 
   - type: default-flatpaks
     notify: true # Send notification after install/uninstall is finished (true/false)
