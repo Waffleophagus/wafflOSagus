@@ -32,6 +32,18 @@ modules:
       # "firefox" is the main package, "firefox-langpacks" is a dependency
       #- firefox
       #- firefox-langpacks # also remove firefox dependency (not required for all packages, this is a special case)
+  - type: gnome-extensions
+    install:
+      #- AppIndicator and KStatusNotifierItem Support
+      - Auto Power Profile
+      - Battery Usage Wattmeter
+      #- Blur my Shell
+      #- Dash to Dock
+      - Forge
+      #- GSConnect
+      - OpenWeather Refined
+      #- Tailscale QS
+
 
   - type: default-flatpaks
     notify: true # Send notification after install/uninstall is finished (true/false)
