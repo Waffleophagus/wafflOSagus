@@ -48,6 +48,18 @@ modules:
       enabled:
       - docker.service
 
+  - type: gnome-extensions
+    install:
+      - AppIndicator and KStatusNotifierItem Support
+      - Auto Power Profile
+      - Battery Usage Wattmeter
+      - Blur my Shell
+      - Dash to Dock
+      - Forge
+      - GSConnect
+      - OpenWeather Refined
+      - Tailscale QS
+
   - type: default-flatpaks
     notify: true # Send notification after install/uninstall is finished (true/false)
     system:
