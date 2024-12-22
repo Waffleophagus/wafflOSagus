@@ -30,6 +30,7 @@ modules:
       - starship
 #      - "@cosmic-desktop-environment"
       - tldr
+      - hugo
       - cosmic-desktop
   #  remove:
       # example: removing firefox (in favor of the flatpak)
