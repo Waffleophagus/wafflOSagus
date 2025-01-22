@@ -10,6 +10,10 @@ jetbrains-toolbox:
   echo "Launching JetBrains Toolbox"
   ./jetbrains-toolbox-$BUILD_VERSION/jetbrains-toolbox
   
+# Build my ubuntu
+assemble-my-distrobox:
+  distrobox assemble create --replace --file /usr/etc/distrobox/distrobox.ini
+  
 # Install nix and Devbox
 nix-devbox:
   echo 'Setting phasers to kill. Installing nix.'
