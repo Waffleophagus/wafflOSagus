@@ -22,7 +22,8 @@ nix-devbox:
   curl -fsSL https://get.jetpack.io/devbox | bash
   echo 'You MUST reboot to continue'
   
-distrobox-assemble:
+# My defined distrobox assemble
+my-distrobox-assemble:
   distrobox assemble create --file /usr/etc/distrobox/distrobox.ini
 
 
