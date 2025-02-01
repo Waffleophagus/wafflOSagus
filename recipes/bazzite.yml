@@ -23,7 +23,7 @@ modules:
       - https://copr.fedorainfracloud.org/coprs/ryanabx/cosmic-epoch/repo/fedora-%OS_VERSION%/ryanabx-cosmic-epoch-fedora-%OS_VERSION%.repo
       - https://download.docker.com/linux/fedora/docker-ce.repo
       - https://pkgs.tailscale.com/stable/fedora/tailscale.repo
-      - https://raw.githubusercontent.com/marafa/vscodium-repo/refs/heads/main/vscodium.repo
+      - https://raw.githubusercontent.com/Waffleophagus/wafflOSagus/refs/heads/main/repo-files/vscodium.repo
     install:
       - micro
       - codium
