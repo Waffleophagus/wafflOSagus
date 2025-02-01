@@ -24,11 +24,12 @@ modules:
       - https://download.docker.com/linux/fedora/docker-ce.repo
       - https://pkgs.tailscale.com/stable/fedora/tailscale.repo
       - https://raw.githubusercontent.com/Waffleophagus/wafflOSagus/refs/heads/main/repo-files/vscodium.repo
+      - https://yum.tableplus.com/rpm/x86_64/tableplus.repo
     install:
       - micro
       - codium
       - starship
-#      - "@cosmic-desktop-environment"
+      - tableplus
       - tldr
       - xclip
       - cosmic-desktop
