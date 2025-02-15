@@ -25,6 +25,7 @@ modules:
       - https://pkgs.tailscale.com/stable/fedora/tailscale.repo
       - https://raw.githubusercontent.com/Waffleophagus/wafflOSagus/refs/heads/main/repo-files/vscodium.repo
       - https://yum.tableplus.com/rpm/x86_64/tableplus.repo
+      - https://repo.vivaldi.com/stable/vivaldi-fedora.repo
     install:
       - micro
       - codium
@@ -39,6 +40,7 @@ modules:
       - docker-buildx-plugin 
       - docker-compose-plugin
       - tailscale
+      - vivaldi
     remove:
       # example: removing firefox (in favor of the flatpak)
       # "firefox" is the main package, "firefox-langpacks" is a dependency
