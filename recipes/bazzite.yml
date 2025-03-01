@@ -25,7 +25,6 @@ modules:
       - https://pkgs.tailscale.com/stable/fedora/tailscale.repo
       - https://raw.githubusercontent.com/Waffleophagus/wafflOSagus/refs/heads/main/repo-files/vscodium.repo
       - https://yum.tableplus.com/rpm/x86_64/tableplus.repo
-      - https://repo.vivaldi.com/stable/vivaldi-fedora.repo
     install:
       - micro
       - codium
