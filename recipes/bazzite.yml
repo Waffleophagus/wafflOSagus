@@ -36,7 +36,7 @@ modules:
       - docker-ce
       - docker-ce-cli
       - containerd.io
-      - docker-buildx-plugin 
+      - docker-buildx-plugin
       - docker-compose-plugin
       - tailscale
     remove:
@@ -49,7 +49,7 @@ modules:
   - type: systemd
     system:
       enabled:
-      - docker.service
+        - docker.service
 
   - type: gnome-extensions
     install:
@@ -58,12 +58,13 @@ modules:
       - Battery Usage Wattmeter
       - Blur my Shell
       - Dash to Dock
-      - Forge
+      #- Forge
+      - gTile
       - GSConnect
       - OpenWeather Refined
       - Tailscale QS
   - type: justfiles
-#    validate: true
+    #    validate: true
     include:
       - my-just.just
 
@@ -72,7 +73,7 @@ modules:
     system:
       # If no repo information is specified, Flathub will be used by default
       install:
-       # - org.mozilla.firefox
+        # - org.mozilla.firefox
         - org.gnome.Loupe
       remove:
         - org.gnome.eog
