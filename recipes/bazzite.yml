@@ -58,8 +58,8 @@ modules:
       - Battery Usage Wattmeter
       - Blur my Shell
       - Dash to Dock
-      #- Forge
-      - gTile
+      - Forge
+      - Tiling Shell
       - GSConnect
       - OpenWeather Refined
       - Tailscale QS
