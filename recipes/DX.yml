@@ -12,10 +12,10 @@ image-version: stable # latest is also supported if you want new updates ASAP
 # module configuration, executed in order
 # you can include multiple instances of the same module
 modules:
-#  - type: akmods
-#    base: asus # if not specified, classic "main" base is used by default
-#    install:
-#      - framework-laptop
+  #  - type: akmods
+  #    base: asus # if not specified, classic "main" base is used by default
+  #    install:
+  #      - framework-laptop
   - type: files
     files:
       - source: system
@@ -25,34 +25,36 @@ modules:
     repos:
       - https://copr.fedorainfracloud.org/coprs/atim/starship/repo/fedora-%OS_VERSION%/atim-starship-fedora-%OS_VERSION%.repo
       - https://copr.fedorainfracloud.org/coprs/ryanabx/cosmic-epoch/repo/fedora-%OS_VERSION%/ryanabx-cosmic-epoch-fedora-%OS_VERSION%.repo
+      - https://download.docker.com/linux/fedora/docker-ce.repo
+      #- https://pkgs.tailscale.com/stable/fedora/tailscale.repo
+      #- https://raw.githubusercontent.com/Waffleophagus/wafflOSagus/refs/heads/main/repo-files/vscodium.repo
+      - https://yum.tableplus.com/rpm/x86_64/tableplus.repo
     install:
       - micro
+      #- codium
       - starship
-#      - "@cosmic-desktop-environment"
+      - tableplus
       - tldr
+      - xclip
       - cosmic-desktop
-  #  remove:
+      #- docker-ce
+      #- docker-ce-cli
+      #- containerd.io
+      #- docker-buildx-plugin
+      #- docker-compose-plugin
+      #- tailscale
+    remove:
       # example: removing firefox (in favor of the flatpak)
       # "firefox" is the main package, "firefox-langpacks" is a dependency
       #- firefox
       #- firefox-langpacks # also remove firefox dependency (not required for all packages, this is a special case)
-  - type: gnome-extensions
-    install:
-      #- AppIndicator and KStatusNotifierItem Support
-      - Auto Power Profile
-      - Battery Usage Wattmeter
-      #- Blur my Shell
-      #- Dash to Dock
-      - Forge
-      #- GSConnect
-      - OpenWeather Refined
-      #- Tailscale QS
+      - waydroid
+      - waydroid-selinux
 
   - type: justfiles
-#    validate: true
+    #    validate: true
     include:
       - my-just.just
-
 
   - type: default-flatpaks
     notify: true # Send notification after install/uninstall is finished (true/false)
