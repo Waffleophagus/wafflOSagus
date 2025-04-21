@@ -53,15 +53,14 @@ modules:
 
   - type: gnome-extensions
     install:
-      - AppIndicator and KStatusNotifierItem Support
+     # - AppIndicator and KStatusNotifierItem Support
       - Auto Power Profile
       - Battery Usage Wattmeter
       - Blur my Shell
       - Dash to Dock
       - Forge
-      - Tiling Shell
       - GSConnect
-      - OpenWeather Refined
+      #- OpenWeather Refined
       - Tailscale QS
   - type: justfiles
     #    validate: true
