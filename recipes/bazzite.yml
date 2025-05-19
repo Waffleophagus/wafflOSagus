@@ -26,6 +26,8 @@ modules:
       - https://raw.githubusercontent.com/Waffleophagus/wafflOSagus/refs/heads/main/repo-files/vscodium.repo
       - https://yum.tableplus.com/rpm/x86_64/tableplus.repo
       - https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/yum/windsurf.repo
+    keys:
+      - https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/yum/RPM-GPG-KEY-windsurf
     install:
       - micro
       - windsurf
