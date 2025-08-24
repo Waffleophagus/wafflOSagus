@@ -68,7 +68,7 @@ modules:
       - Blur my Shell
       - Dash to Dock
       #- Forge
-      - GSConnect
+      #- GSConnect
       #- OpenWeather Refined
       - Tailscale QS
   - type: justfiles
@@ -76,16 +76,17 @@ modules:
     include:
       - my-just.just
 
-  - type: default-flatpaks@v1
-    notify: true # Send notification after install/uninstall is finished (true/false)
-    system:
-      # If no repo information is specified, Flathub will be used by default
-      install:
-        # - org.mozilla.firefox
-        - org.gnome.Loupe
-      remove:
-        - org.gnome.eog
-    user: {} # Also add Flathub user repo, but no user packages
+  - type: default-flatpaks
+    configurations:
+      - notify: true
+        scope: system
+        install:
+          - org.gnome.Loupe
+        remove:
+          - org.gnome.eog
+      - notify: true
+        scope: user
+        install: []
 
   - type: signing # this sets up the proper policy & signing files for signed images to work fully
 
