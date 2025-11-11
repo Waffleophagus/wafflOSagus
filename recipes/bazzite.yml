@@ -70,7 +70,7 @@ modules:
       #- Forge
       #- GSConnect
       #- OpenWeather Refined
-      - Tailscale QS
+      #- Tailscale QS
   - type: justfiles
     #    validate: true
     include:
