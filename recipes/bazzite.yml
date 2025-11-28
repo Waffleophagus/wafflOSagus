@@ -18,9 +18,13 @@ modules:
         destination: / # copies files/system/* (* means everything inside it) into your image's root folder /
 
   - type: dnf
-    group-install:
+    repos:
+      cleanup: true
+      copr:
+        - ryanabx/cosmic-epoch
+    install:
       packages:
-        - cosmic-desktop-environment
+        - cosmic-desktop
 
   - type: rpm-ostree
     repos:
