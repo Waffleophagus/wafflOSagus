@@ -25,6 +25,7 @@ modules:
     install:
       packages:
         - cosmic-desktop
+        - https://bitwarden.com/download/?app=desktop&platform=linux&variant=rpm
 
   - type: rpm-ostree
     repos:
