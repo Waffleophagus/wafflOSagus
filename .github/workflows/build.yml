@@ -31,9 +31,7 @@ jobs:
           - DX.yml
           - bazzite.yml
           - ucore.yml
-           - ucore.yml
-          - ucore.yml
-            - ucore.yml
+
     steps:
       # the build is fully handled by the reusable github action
       - name: Build Custom Image
