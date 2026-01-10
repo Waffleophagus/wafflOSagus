@@ -1,0 +1,34 @@
+---
+# yaml-language-server: $schema=https://schema.blue-build.org/recipe-v1.json
+# image will be published to ghcr.io/<user>/<name>
+name: wafflosagus-ucore
+# description will be included in the image's metadata
+description: Custom uCore image with tailscale, tldr, zoxide, bun, pnpm, and brew for VM.
+
+# the base image to build on top of (FROM) and the version tag to use
+base-image: ghcr.io/ublue-os/ucore:stable
+image-version: stable # latest is also supported if you want new updates ASAP
+
+# module configuration, executed in order
+# you can include multiple instances of the same module
+modules:
+  - type: files
+    files:
+      - source: system
+        destination: / # copies files/system/* (* means everything inside it) into your image's root folder /
+
+  - type: rpm-ostree
+    repos:
+      - https://pkgs.tailscale.com/stable/fedora/tailscale.repo
+    install:
+      - tailscale
+      - tldr
+      - zoxide
+      - bun
+      - pnpm
+
+  - type: script
+    scripts:
+      - install-brew.sh
+
+  - type: signing # this sets up the proper policy & signing files for signed images to work fully

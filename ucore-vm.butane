@@ -1,0 +1,15 @@
+variant: fcos
+version: 1.5.0
+passwd:
+  users:
+    - name: clawdbot
+      ssh_authorized_keys:
+        - ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICfWxLwuoAmPHoXS4OMdRNz+e4lisJedtm6ElSHLb5Q8 waffleophagus@gmail.com
+files:
+  - path: /etc/ssh/sshd_config.d/50-disable-password.conf
+    contents:
+      inline: |
+        PasswordAuthentication no
+    mode: 0644
+rpm-ostree:
+  rebase: ostree-unverified-registry:ghcr.io/waffleophagus/wafflosagus-ucore:latest
