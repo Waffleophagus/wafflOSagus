@@ -3,10 +3,10 @@
 # image will be published to ghcr.io/<user>/<name>
 name: wafflosagus-ucore
 # description will be included in the image's metadata
-description: Custom uCore image with tailscale, tldr, zoxide, bun, pnpm, and brew for VM.
+description: Custom uCore image with tailscale, tldr, zoxide, nodejs-pnpm, and brew for VM.
 
 # the base image to build on top of (FROM) and the version tag to use
-base-image: ghcr.io/ublue-os/ucore-minimal
+base-image: ghcr.io/ublue-os/ucore
 image-version: stable # latest is also supported if you want new updates ASAP
 
 # module configuration, executed in order
@@ -24,11 +24,9 @@ modules:
       - tailscale
       - tldr
       - zoxide
-      - bun
-      - pnpm
+      - nodejs-pnpm
 
-  - type: script
-    scripts:
-      - install-brew.sh
+  - type: brew
+    brew-analytics: false
 
   - type: signing # this sets up the proper policy & signing files for signed images to work fully
