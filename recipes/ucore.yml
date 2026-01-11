@@ -24,7 +24,8 @@ modules:
       - tailscale
       - tldr
       - zoxide
-      - nodejs-pnpm
+      - fish
+      - starship
 
   - type: brew
     brew-analytics: false
