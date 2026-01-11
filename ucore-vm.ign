@@ -24,7 +24,7 @@
       {
         "name": "install-brew-clawdbot.service",
         "enabled": true,
-        "contents": "[Unit]\nDescription=Install Homebrew for clawdbot\nAfter=network-online.target\nWants=network-online.target\nConditionPathExists=!/home/linuxbrew/.linuxbrew/bin/brew\n\n[Service]\nType=oneshot\nUser=clawdbot\nGroup=clawdbot\nEnvironment=HOME=/var/home/clawdbot\nEnvironment=USER=clawdbot\nEnvironment=NONINTERACTIVE=1\nExecStart=/usr/local/bin/install-brew-user.sh\nTimeoutStartSec=600\nStandardOutput=journal\nStandardError=journal\n\n[Install]\nWantedBy=multi-user.target\n"
+        "contents": "[Unit]\nDescription=Install Homebrew for clawdbot\nAfter=network-online.target\nWants=network-online.target\nConditionPathExists=!/home/linuxbrew/.linuxbrew/bin/brew\n\n[Service]\nType=oneshot\nUser=clawdbot\nGroup=clawdbot\nEnvironment=HOME=/var/home/clawdbot\nEnvironment=USER=clawdbot\nEnvironment=NONINTERACTIVE=1\nExecStart=/usr/bin/install-brew-user.sh\nTimeoutStartSec=600\nStandardOutput=journal\nStandardError=journal\n\n[Install]\nWantedBy=multi-user.target\n"
       }
     ]
   }

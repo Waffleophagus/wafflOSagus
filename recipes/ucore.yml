@@ -16,6 +16,8 @@ modules:
     files:
       - source: system
         destination: / # copies files/system/* (* means everything inside it) into your image's root folder /
+      - source: ucore-system
+        destination: / # ucore-specific files (install-brew-user.sh)
 
   - type: rpm-ostree
     repos:
