@@ -8,7 +8,9 @@
         "name": "clawdbot",
         "sshAuthorizedKeys": [
           "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICfWxLwuoAmPHoXS4OMdRNz+e4lisJedtm6ElSHLb5Q8 waffleophagus@gmail.com"
-        ]
+        ],
+        "passwordHash": "$y$j9T$t5UaJ8x1X3KGzpj.MP2y50$OqKWEoAN5c4I9Op1QTJjXui8qZR5zD/ufdzDTvbEFw/",
+        "groups": ["wheel"]
       }
     ]
   },
