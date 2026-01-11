@@ -1,0 +1,19 @@
+[Unit]
+Description=Install Homebrew for clawdbot
+After=network-online.target local-fs.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+User=clawdbot
+Group=clawdbot
+Environment=HOME=/var/home/clawdbot
+Environment=USER=clawdbot
+Environment=NONINTERACTIVE=1
+ExecStart=/usr/bin/install-brew-user.sh
+TimeoutStartSec=600
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target
