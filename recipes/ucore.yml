@@ -26,6 +26,7 @@ modules:
       - zoxide
       - fish
       - starship
+      - nodejs-npm
 
   - type: brew
     brew-analytics: false
