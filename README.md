@@ -38,21 +38,36 @@ If build on Fedora Atomic, you can generate an offline ISO with the instructions
 
 Complete documentation for deploying and managing wafflOSagus is available in the [docs/](docs/) directory:
 
-- **[Unraid uCore VM Deployment](docs/unraid-ucore-deployment.md)** - Complete guide for headless VM setup
+- **[Unraid uCore VM Deployment](docs/unraid-ucore-deployment.md)** - Complete guide for headless VM setup (primary method)
+- **[GitHub vs Local Ignition](docs/github-vs-local-ignition.md)** - Technical comparison and migration guide
 - **[Quick Reference](docs/quick-reference.md)** - TL;DR command summary and common tasks
-- **[Local Ignition Alternative](docs/local-ignition-alternative.md)** - Fallback method for ignition delivery
+- **[Deployment Checklist](docs/deployment-checklist.md)** - Step-by-step verification and troubleshooting
 
 ### Quick Start for Unraid VM
 
-1. Create VM with: 4 CPU, 6GB RAM, 60GB disk, Q35 machine type
-2. Edit VM XML to fetch ignition from GitHub:
-   ```xml
-   <kernel_args>ignition.config.url=https://raw.githubusercontent.com/waffleophagus/wafflOSagus/main/ucore-vm.ign</kernel_args>
-   ```
-3. Boot VM - ignition will configure user and rebase to wafflOSagus
-4. SSH as `clawdbot` after reboot
+**Note:** The recommended method uses local ignition file + fw_cfg for reliability with UEFI/OVMF bootloaders.
 
-See [docs/unraid-ucore-deployment.md](docs/unraid-ucore-deployment.md) for full details.
+1. Download ignition file to Unraid:
+   ```bash
+   wget -O /mnt/user/domains/ucore-vm.ign \
+     https://raw.githubusercontent.com/waffleophagus/wafflOSagus/main/ucore-vm.ign
+   chcon --type svirt_home_t /mnt/user/domains/ucore-vm.ign
+   ```
+
+2. Create VM with: 4 CPU, 6GB RAM, 60GB disk, Q35 machine type, OVMF BIOS
+
+3. Edit VM XML to add fw_cfg configuration:
+   ```xml
+   <qemu:commandline xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>
+     <qemu:arg value='-fw_cfg'/>
+     <qemu:arg value='name=opt/com.coreos/config,file=/mnt/user/domains/ucore-vm.ign'/>
+   </qemu:commandline>
+   ```
+
+4. Boot VM - ignition will configure user and rebase to wafflOSagus
+5. SSH as `clawdbot` after reboot
+
+See [docs/unraid-ucore-deployment.md](docs/unraid-ucore-deployment.md) for full details and explanation of why this method is recommended.
 
 ## Verification
 

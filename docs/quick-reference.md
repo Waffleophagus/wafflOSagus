@@ -2,7 +2,20 @@
 
 ## TL;DR Command Summary
 
-### From Unraid Host
+### Unraid Host (Ignition Setup)
+```bash
+# Download ignition file
+wget -O /mnt/user/domains/ucore-vm.ign \
+  https://raw.githubusercontent.com/waffleophagus/wafflOSagus/main/ucore-vm.ign
+
+# Set SELinux label (REQUIRED)
+chcon --verbose --type svirt_home_t /mnt/user/domains/ucore-vm.ign
+
+# Verify file and SELinux context
+ls -Z /mnt/user/domains/ucore-vm.ign
+```
+
+### Unraid Host (VM Management)
 ```bash
 # VM management
 virsh start wafflosagus-ucore           # Start VM
@@ -10,12 +23,9 @@ virsh shutdown wafflosagus-ucore        # Stop VM gracefully
 virsh destroy wafflosagus-ucore         # Force stop
 virsh edit wafflosagus-ucore            # Edit XML
 virsh list --all                      # List all VMs
-
-# File setup (for local ignition)
-chcon --type svirt_home_t /mnt/user/domains/ucore-vm.ign
 ```
 
-### From Inside VM (clawdbot@vm)
+### Inside VM (clawdbot@vm)
 ```bash
 # System management
 rpm-ostree status                   # Check deployment
@@ -27,31 +37,11 @@ sudo journalctl -u <service>          # Check service logs
 cat /etc/os-release                   # Should show wafflOSagus
 ```
 
-## GitHub URL Method (Primary)
+## Local File Method (Primary)
 
-### VM XML Additions
+### VM XML Addition
 
-Add to `<os>` section:
-```xml
-<kernel_args>ignition.config.url=https://raw.githubusercontent.com/waffleophagus/wafflOSagus/main/ucore-vm.ign</kernel_args>
-```
-
-### Ignition File Location
-```
-https://raw.githubusercontent.com/waffleophagus/wafflOSagus/main/ucore-vm.ign
-```
-
-### Pros/Cons
-- ✅ Simple setup, single kernel arg
-- ✅ Easy to update via Git push
-- ⚠️  Requires network on first boot
-- ⚠️  GitHub rate limits possible
-
-## Local File Method (Fallback)
-
-### VM XML Additions
-
-Add before `</domain>`:
+Add at end of XML, before `</domain>`:
 ```xml
 <qemu:commandline xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>
   <qemu:arg value='-fw_cfg'/>
@@ -59,22 +49,34 @@ Add before `</domain>`:
 </qemu:commandline>
 ```
 
-### File Setup
+### Ignition File Setup
 ```bash
-# Create file
-cat > /mnt/user/domains/ucore-vm.ign << 'EOF'
-{...ignition JSON...}
-EOF
+# Download from GitHub
+wget -O /mnt/user/domains/ucore-vm.ign \
+  https://raw.githubusercontent.com/waffleophagus/wafflOSagus/main/ucore-vm.ign
 
 # Set SELinux label
 chcon --type svirt_home_t /mnt/user/domains/ucore-vm.ign
+
+# Verify
+ls -Z /mnt/user/domains/ucore-vm.ign
 ```
 
 ### Pros/Cons
-- ✅ No network dependency
-- ✅ Higher reliability
+- ✅ No network dependency during boot
+- ✅ Works with UEFI/OVMF bootloader
+- ✅ High reliability
+- ✅ Well documented (Fedora CoreOS standard)
 - ⚠️  Must update file on Unraid host
 - ⚠️  SELinux context required
+
+## Alternative: GitHub URL (Not Recommended)
+
+### Why Not Recommended
+- UEFI/OVMF bootloader doesn't pass kernel_args from libvirt XML
+- `ignition.config.url` kernel parameter doesn't work with UEFI boot
+- Requires complex bootloader configuration or hybrid approach
+- See `docs/unraid-ucore-deployment.md` for hybrid alternative
 
 ## VM Settings
 
@@ -108,13 +110,12 @@ chcon --type svirt_home_t /mnt/user/domains/ucore-vm.ign
 
 ### First Boot (With Ignition)
 1. VM boots from base qcow2
-2. Network initializes
-3. Ignition fetches config (GitHub) or loads (local)
-4. User `clawdbot` created
-5. Rebase service starts
-6. `rpm-ostree rebase` runs
-7. System auto-reboots
-8. Boot into wafflOSagus image
+2. Ignition loads from fw_cfg
+3. User `clawdbot` created
+4. Rebase service starts
+5. `rpm-ostree rebase` runs
+6. System auto-reboots
+7. Boot into wafflOSagus image
 
 ### Normal Boot (Post-Deployment)
 1. VM boots from wafflOSagus image
@@ -124,22 +125,41 @@ chcon --type svirt_home_t /mnt/user/domains/ucore-vm.ign
 ## Troubleshooting Quick Fixes
 
 ### Ignition Not Applying
-- Check kernel_args or fw_cfg syntax
-- Verify file paths are correct
-- Check VNC console for error messages
-- Try switching ignition method (GitHub ↔ local)
+- Check file exists: `ls -la /mnt/user/domains/ucore-vm.ign`
+- Check SELinux context: `ls -Z /mnt/user/domains/ucore-vm.ign`
+- Fix SELinux: `chcon --type svirt_home_t /mnt/user/domains/ucore-vm.ign`
+- Check fw_cfg in XML: `grep -A3 "qemu:commandline" /etc/libvirt/qemu/wafflosagus-ucore.xml`
+- Verify XML placement: Must be before `</domain>`
 
 ### Rebase Fails
 - Check network connectivity
 - Verify container registry URL
-- Check logs: `journalctl -u rebase-to-wafflosagus`
+- Check logs: `journalctl -u rebase-to-wafflosagus.service`
 - Try manual rebase from console
+- Verify SELinux context on ignition file
 
 ### SSH Not Working
 - Verify user exists: `id clawdbot`
 - Check SSH key in `~/.ssh/authorized_keys`
 - Check sshd service: `systemctl status sshd`
 - Verify network: `ip addr show`
+
+### SELinux Errors
+**Error**: "Permission denied" accessing ignition file
+
+**Fix**:
+```bash
+# Check SELinux context
+ls -Z /mnt/user/domains/ucore-vm.ign
+
+# Fix context
+chcon --verbose --type svirt_home_t /mnt/user/domains/ucore-vm.ign
+
+# If that fails, try disabling SELinux temporarily (not recommended):
+setenforce 0
+# Then re-enable after boot:
+setenforce 1
+```
 
 ### Network Issues
 - Check bridge: `brctl show`
@@ -194,25 +214,26 @@ ip route show
 │   ├── vdisk1.img
 │   └── wafflosagus-ucore_VARS.fd
 ├── fedora-coreos-base.qcow2
-└── ucore-vm.ign (local method only)
+└── ucore-vm.ign
 ```
 
 ## URLs
 
-- **Documentation**: `/docs/unraid-ucore-deployment.md`
-- **Local Ignition Alternative**: `/docs/local-ignition-alternative.md`
+- **Full Documentation**: `/docs/unraid-ucore-deployment.md`
+- **Deployment Checklist**: `/docs/deployment-checklist.md`
 - **GitHub Repo**: https://github.com/waffleophagus/wafflOSagus
 - **Container Registry**: ghcr.io/waffleophagus/wafflosagus-ucore
 
 ## Key Points to Remember
 
 1. **Ignition only runs on first boot** - won't reapply after
-2. **Auto-reboot is part of design** - system will restart automatically
-3. **GitHub method requires network** - use local fallback if issues
-4. **Rebase is one-time operation** - updates use `rpm-ostree upgrade`
-5. **SSH is primary access method** - VNC for troubleshooting only
-6. **Snapshots work after deployment** - not during ignition phase
+2. **fw_cfg is required** - UEFI doesn't support kernel_args from libvirt XML
+3. **SELinux context is critical** - must be `svirt_home_t`
+4. **Auto-reboot is part of design** - system will restart automatically
+5. **Rebase is one-time operation** - updates use `rpm-ostree upgrade`
+6. **SSH is primary access method** - VNC for troubleshooting only
 7. **wafflOSagus image is immutable** - layered via rpm-ostree
+8. **Local file is more reliable** than GitHub URL approach
 
 ## Post-Deploy Checklist
 
@@ -220,10 +241,28 @@ ip route show
 - [ ] SSH as clawdbot works
 - [ ] `rpm-ostree status` shows wafflOSagus image
 - [ ] Network connectivity works (ping external host)
-- [ ] Remove ignition config from XML (cleanup)
+- [ ] Remove qemu:commandline from XML (cleanup)
 - [ ] Test system update: `rpm-ostree upgrade`
 - [ ] Create snapshot for rollback safety
 - [ ] Document any custom configurations
+
+## Updating Ignition
+
+To update ignition configuration:
+
+```bash
+# Download new version
+wget -O /mnt/user/domains/ucore-vm.ign \
+  https://raw.githubusercontent.com/waffleophagus/wafflOSagus/main/ucore-vm.ign
+
+# Set SELinux label
+chcon --type svirt_home_t /mnt/user/domains/ucore-vm.ign
+
+# Verify
+ls -Z /mnt/user/domains/ucore-vm.ign
+```
+
+Note: Ignition only runs on first boot, so this only affects new VM deployments.
 
 ## Support Resources
 

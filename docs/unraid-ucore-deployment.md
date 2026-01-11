@@ -2,12 +2,12 @@
 
 ## Overview
 
-This guide walks through deploying wafflOSagus uCore as a headless VM on Unraid using GitHub-hosted ignition configuration.
+This guide walks through deploying wafflOSagus uCore as a headless VM on Unraid using local ignition configuration passed via QEMU's fw_cfg mechanism.
 
 ## Workflow Summary
 
 1. Boot base CoreOS/ucore qcow2 image
-2. Ignition configuration fetched from GitHub during first boot
+2. Ignition configuration loaded from local file via fw_cfg
 3. Ignition sets up user (clawdbot) and rebases to custom image
 4. System auto-reboots into wafflOSagus
 5. SSH access available post-boot
@@ -18,20 +18,29 @@ This guide walks through deploying wafflOSagus uCore as a headless VM on Unraid 
 - Unraid 7.x (for inline XML editing and QEMU command-line passthrough)
 - KVM virtualization enabled
 - Sufficient storage for VM disk (60GB recommended minimum)
-- Network connectivity during first boot (for GitHub ignition fetch)
+- Access to Unraid CLI (terminal) for file setup
 
 ### Files Needed
 - Base qcow2 image (Fedora CoreOS or uCore minimal)
-- Ignition configuration file in your GitHub repository
+- Ignition configuration file from your GitHub repository
 - SSH public key (already configured in ignition)
 
 ## Step-by-Step Deployment
 
-### Phase 1: Prepare Ignition Configuration
+### Phase 1: Download Ignition Configuration
 
-Your ignition file should be stored at:
-```
-https://raw.githubusercontent.com/waffleophagus/wafflOSagus/main/ucore-vm.ign
+Download ignition file to Unraid's domains directory:
+
+```bash
+# Download from GitHub
+wget -O /mnt/user/domains/ucore-vm.ign \
+  https://raw.githubusercontent.com/waffleophagus/wafflOSagus/main/ucore-vm.ign
+
+# Set SELinux label (required for libvirt security)
+chcon --verbose --type svirt_home_t /mnt/user/domains/ucore-vm.ign
+
+# Verify file and SELinux context
+ls -Z /mnt/user/domains/ucore-vm.ign
 ```
 
 **Ignition file contents:**
@@ -46,7 +55,7 @@ https://raw.githubusercontent.com/waffleophagus/wafflOSagus/main/ucore-vm.ign
    /mnt/user/domains/fedora-coreos-base.qcow2
    ```
 
-2. Note: This is the base image you downloaded, not the custom wafflOSagus image (that comes from registry)
+2. Note: This is base image you downloaded, not custom wafflOSagus image (that comes from registry)
 
 ### Phase 3: Create VM in Unraid WebGUI
 
@@ -83,37 +92,32 @@ https://raw.githubusercontent.com/waffleophagus/wafflOSagus/main/ucore-vm.ign
 
 8. **Create VM** (but don't start yet)
 
-### Phase 4: Edit VM XML for GitHub Ignition
+### Phase 4: Edit VM XML for Ignition
 
-This is the critical step to fetch ignition from GitHub:
+Configure libvirt to pass ignition file via QEMU's fw_cfg mechanism:
 
-1. Stop the VM if it's running
-2. Click on the VM → **Edit XML** (available in Unraid 7.x)
-3. Locate the `<os>` section (near top of XML)
-4. Add the kernel parameter to fetch ignition from GitHub:
+1. Stop VM if it's running
+2. Click on VM → **Edit XML** (available in Unraid 7.x)
+3. Scroll to bottom of XML, locate `</domain>` closing tag
+4. Add qemu:commandline section **just before** `</domain>`:
 
 ```xml
-<os>
-  <type arch='x86_64' machine='pc-q35-rhel8.6.0'>hvm</type>
-  <loader readonly='yes' type='pflash'>/usr/share/edk2-x86_64/OVMF_CODE.fd</loader>
-  <nvram>/etc/libvirt/qemu/nvram/wafflosagus-ucore_VARS.fd</nvram>
-  <boot enable='yes' order='1'/>
-  <bootmenu enable='no'/>
-  <kernel_args>ignition.config.url=https://raw.githubusercontent.com/waffleophagus/wafflOSagus/main/ucore-vm.ign</kernel_args>
-</os>
+<qemu:commandline xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>
+  <qemu:arg value='-fw_cfg'/>
+  <qemu:arg value='name=opt/com.coreos/config,file=/mnt/user/domains/ucore-vm.ign'/>
+</qemu:commandline>
 ```
 
-**Important**: The kernel_args line is what tells CoreOS to fetch ignition from GitHub.
+**Important**: This must be placed AFTER the `<devices>` section, before `</domain>`.
 
-5. Save the XML
+5. Save XML
 
 ### Phase 5: Boot and Monitor First Boot
 
-1. Start the VM
+1. Start VM
 2. Open VNC console to monitor boot process
 3. Watch for:
-   - Network initialization
-   - Ignition message: "Fetching config from https://..."
+   - Ignition message: "Applying config from fw_cfg"
    - "Ignition: applied config successfully"
    - Rebase command executing
    - "Rebooting now..." message
@@ -139,63 +143,62 @@ This is the critical step to fetch ignition from GitHub:
    # Check other services as needed
    ```
 
-4. Clean up kernel_args (optional but recommended):
+4. Clean up qemu:commandline (optional but recommended):
    - Stop VM
    - Edit XML
-   - Remove `ignition.config.url` from `<kernel_args>`
-   - Ignition only runs on first boot, so this prevents unnecessary fetch attempts
+   - Remove entire `<qemu:commandline>` section
+   - Save XML
+   - Ignition only runs on first boot, so this prevents unnecessary config passes
 
 5. Verify SSH access works reliably
 6. You can now disable VNC if desired (headless operation confirmed)
 
-## Alternative: Local Ignition File
+## Alternative Methods
 
-If GitHub fetch fails or you prefer local configuration:
+### GitHub URL Approach (Not Recommended)
 
-### When to Use Local Ignition
-- Network is unreliable during first boot
-- GitHub access is blocked or rate-limited
-- Air-gapped environment
-- Troubleshooting deployment issues
+**Why not recommended:**
+- UEFI/OVMF bootloader doesn't pass kernel_args from libvirt XML
+- `ignition.config.url` kernel parameter doesn't work with UEFI boot
+- Requires complex bootloader configuration or hybrid approach
 
-### Step 1: Prepare Local Ignition File
+**If you really want to use GitHub:**
+1. Use hybrid approach: local ignition that fetches from GitHub
+2. See `docs/local-ignition-alternative.md` for details
+3. Requires editing local ignition file on Unraid anyway
 
-1. Create `/mnt/user/domains/ucore-vm.ign` with your ignition contents
-2. Set SELinux label:
+**Recommendation**: Stick with local file + fw_cfg method documented above.
+
+## Troubleshooting
+
+### Issue: Ignition fails to load
+
+**Symptoms:**
+- No ignition message in VNC console
+- User not created after boot
+- Rebase doesn't run
+
+**Solutions:**
+1. Check ignition file exists:
+   ```bash
+   ls -la /mnt/user/domains/ucore-vm.ign
+   ```
+
+2. Verify SELinux context:
+   ```bash
+   ls -Z /mnt/user/domains/ucore-vm.ign
+   # Should show: svirt_home_t
+   ```
+
+3. Fix SELinux context if wrong:
    ```bash
    chcon --verbose --type svirt_home_t /mnt/user/domains/ucore-vm.ign
    ```
 
-### Step 2: Edit VM XML for Local Ignition
-
-Instead of kernel_args, add to end of XML (before `</domain>`):
-
-```xml
-<qemu:commandline xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>
-  <qemu:arg value='-fw_cfg'/>
-  <qemu:arg value='name=opt/com.coreos/config,file=/mnt/user/domains/ucore-vm.ign'/>
-</qemu:commandline>
-```
-
-### Step 3: Continue from Phase 5
-
-Boot and monitor as described above. Everything else is identical.
-
-## Troubleshooting
-
-### Issue: Ignition fails to fetch from GitHub
-
-**Symptoms:**
-- Boot hangs or times out during ignition fetch
-- "Failed to fetch config from URL" error
-- Network connectivity issues during first boot
-
-**Solutions:**
-1. **Switch to local ignition** (see Alternative section above)
-2. Check GitHub URL is correct and accessible from host
-3. Verify GitHub repository is public
-4. Check Unraid network bridge is functioning
-5. Try alternative URL (e.g., GitHub Pages instead of raw.githubusercontent.com)
+4. Verify qemu:commandline in XML:
+   ```bash
+   grep -A3 "qemu:commandline" /etc/libvirt/qemu/wafflosagus-ucore.xml
+   ```
 
 ### Issue: Rebase Fails
 
@@ -222,8 +225,14 @@ Boot and monitor as described above. Everything else is identical.
    ```bash
    journalctl -u rebase-to-wafflosagus.service
    ```
+
 2. Manually reboot if service failed: `sudo systemctl reboot`
-3. Verify service is enabled: `systemctl is-enabled rebase-to-wafflosagus.service`
+
+3. Verify service is enabled:
+   ```bash
+   systemctl is-enabled rebase-to-wafflosagus.service
+   ```
+
 4. Check if conditional `ConditionPathExists=/etc/ignition-machine-config` is met
 
 ### Issue: SSH Access Not Working After Rebase
@@ -241,19 +250,29 @@ Boot and monitor as described above. Everything else is identical.
 5. Try direct console access via VNC to debug
 6. Check firewall rules if applicable
 
-### Issue: VNC Console Not Working
+### Issue: SELinux Errors
 
 **Symptoms:**
-- Can't connect to VNC
-- Black screen in VNC
-- VNC connection refused
+- "Permission denied" accessing ignition file
+- AVC denials in logs
 
 **Solutions:**
-1. Check VM is running
-2. Verify VNC is enabled in VM settings
-3. Try different VNC port
-4. Check Unraid firewall settings
-5. Ensure no GPU passthrough is interfering with VNC
+1. Check SELinux context:
+   ```bash
+   ls -Z /mnt/user/domains/ucore-vm.ign
+   ```
+
+2. Fix context:
+   ```bash
+   chcon --verbose --type svirt_home_t /mnt/user/domains/ucore-vm.ign
+   ```
+
+3. If that fails, try disabling SELinux temporarily (not recommended):
+   ```bash
+   setenforce 0
+   # Then re-enable after boot:
+   setenforce 1
+   ```
 
 ## Maintenance
 
@@ -322,13 +341,23 @@ Unraid 7.x supports VM snapshots:
 │   ├── vdisk1.img              # Primary VM disk
 │   └── wafflosagus-ucore_VARS.fd  # UEFI NVRAM
 ├── fedora-coreos-base.qcow2     # Base image (backing store)
-└── ucore-vm.ign               # Local ignition file (if used)
+└── ucore-vm.ign               # Ignition configuration
 ```
 
 ## Quick Reference Commands
 
 ### From Unraid Host
 ```bash
+# Download ignition file
+wget -O /mnt/user/domains/ucore-vm.ign \
+  https://raw.githubusercontent.com/waffleophagus/wafflOSagus/main/ucore-vm.ign
+
+# Set SELinux context
+chcon --type svirt_home_t /mnt/user/domains/ucore-vm.ign
+
+# Verify file
+ls -Z /mnt/user/domains/ucore-vm.ign
+
 # List running VMs
 virsh list
 
@@ -366,16 +395,34 @@ journalctl -u <service-name>
 sudo systemctl reboot
 ```
 
+## Updating Ignition File
+
+To update the ignition configuration:
+
+1. Make changes to `ucore-vm.ign` in your repository
+2. On Unraid, download new version:
+   ```bash
+   wget -O /mnt/user/domains/ucore-vm.ign \
+     https://raw.githubusercontent.com/waffleophagus/wafflOSagus/main/ucore-vm.ign
+
+   chcon --type svirt_home_t /mnt/user/domains/ucore-vm.ign
+   ```
+
+3. Create new VM (ignition only runs on first boot)
+   Or use the updated ignition for fresh deployments
+
 ## References
 
 - [Fedora CoreOS Ignition Documentation](https://docs.fedoraproject.org/en-US/fedora-coreos/getting-started/)
 - [BlueBuild Documentation](https://blue-build.org/)
 - [Unraid VM Documentation](https://docs.unraid.net/unraid-os/using-unraid-to/create-virtual-machines/vm-setup/)
 - [rpm-ostree Documentation](https://coreos.github.io/rpm-ostree/)
+- [QEMU fw_cfg Documentation](https://docs.fedoraproject.org/en-US/fedora-coreos/provisioning-qemu/)
 
 ## Changelog
 
 - 2025-01-10: Initial documentation created
-  - GitHub URL-based ignition configuration
+  - fw_cfg + local file method (primary, recommended)
+  - GitHub URL method documented as alternative (not recommended)
   - Comprehensive troubleshooting section
-  - Alternative local ignition method documented
+  - SELinux context handling documented

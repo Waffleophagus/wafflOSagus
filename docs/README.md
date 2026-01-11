@@ -6,35 +6,45 @@ This directory contains comprehensive documentation for deploying and managing w
 
 ### Primary Documentation
 
-- **[unraid-ucore-deployment.md](unraid-ucore-deployment.md)**
+- **[Unraid uCore VM Deployment](unraid-ucore-deployment.md)** ⭐ Primary guide
   - Complete guide for deploying wafflOSagus uCore VM on Unraid
-  - Covers GitHub URL and local ignition methods
+  - Uses local ignition file + fw_cfg (recommended, reliable method)
   - Comprehensive troubleshooting section
   - Maintenance and update procedures
 
-### Alternative Methods
+### Technical Explanations
 
-- **[local-ignition-alternative.md](local-ignition-alternative.md)**
-  - Detailed guide for switching from GitHub URL to local ignition file
-  - Quick reference for switching back and forth
-  - Hybrid approach for maximum reliability
+- **[GitHub vs Local Ignition](github-vs-local-ignition.md)**
+  - Explains technical differences between methods
+  - Why local file is recommended for Unraid UEFI setups
+  - Migration guide from GitHub URL to local file
+  - SELinux context requirements
 
 ### Quick Reference
 
-- **[quick-reference.md](quick-reference.md)**
+- **[Quick Reference](quick-reference.md)**
   - TL;DR command summary
   - Common tasks at a glance
   - VM settings reference
   - Cheat sheet for troubleshooting
 
+### Step-by-Step
+
+- **[Deployment Checklist](deployment-checklist.md)**
+  - Detailed verification steps
+  - Troubleshooting flowcharts
+  - Success indicators
+  - Post-deploy checklist
+
 ## Deployment Overview
 
 wafflOSagus is built using BlueBuild and can be deployed to:
 
-1. **Unraid VM** (headless server)
+1. **Unraid VM** (headless server) ⭐ Recommended method
    - Uses Fedora CoreOS/ucore base
-   - Configured via Ignition
+   - Configured via local ignition file + fw_cfg
    - Rebases to custom wafflOSagus image on first boot
+   - Reliable, well-documented approach
 
 2. **Bare Metal**
    - Atomic desktop images
@@ -59,42 +69,35 @@ wafflOSagus is built using BlueBuild and can be deployed to:
 - Unraid 7.x
 - Base qcow2 image (Fedora CoreOS or uCore)
 - Ignition configuration in GitHub repository
+- Access to Unraid CLI (terminal)
 
 ### 5-Minute Setup
 
-1. **Create VM** in Unraid WebGUI with:
+1. **Download ignition** to Unraid:
+   ```bash
+   wget -O /mnt/user/domains/ucore-vm.ign \
+     https://raw.githubusercontent.com/waffleophagus/wafflOSagus/main/ucore-vm.ign
+   chcon --type svirt_home_t /mnt/user/domains/ucore-vm.ign
+   ```
+
+2. **Create VM** in Unraid WebGUI with:
    - 4 CPU, 6GB RAM, 60GB disk
    - Q35 machine type, OVMF BIOS
    - VNC graphics, VirtIO network
 
-2. **Edit VM XML** - Add kernel args for GitHub ignition:
+3. **Edit VM XML** - Add fw_cfg configuration:
    ```xml
-   <kernel_args>ignition.config.url=https://raw.githubusercontent.com/waffleophagus/wafflOSagus/main/ucore-vm.ign</kernel_args>
+   <qemu:commandline xmlns:qemu='http://libvirt.org/schemas/domain/qemu/1.0'>
+     <qemu:arg value='-fw_cfg'/>
+     <qemu:arg value='name=opt/com.coreos/config,file=/mnt/user/domains/ucore-vm.ign'/>
+   </qemu:commandline>
    ```
 
-3. **Boot VM** - Watch VNC console for:
-   - Ignition fetch and apply
-   - Rebase to wafflOSagus image
-   - Auto-reboot
-
-4. **Verify** - SSH as `clawdbot`:
-   ```bash
-   ssh clawdbot@<vm-ip>
-   rpm-ostree status
-   ```
-
-5. **Cleanup** - Remove ignition config from VM XML
+4. **Boot VM** - Watch VNC console for ignition and rebase
+5. **SSH** as `clawdbot` after reboot
+6. **Cleanup** - Remove fw_cfg from VM XML (ignition runs once)
 
 **Full details**: See [unraid-ucore-deployment.md](unraid-ucore-deployment.md)
-
-## Image Registry
-
-Custom images are available at:
-```
-ghcr.io/waffleophagus/wafflosagus-ucore:latest
-ghcr.io/waffleophagus/wafflosagus-bazzite:latest
-ghcr.io/waffleophagus/wafflosagus-DX:latest
-```
 
 ## Key Concepts
 
@@ -106,12 +109,28 @@ ghcr.io/waffleophagus/wafflosagus-DX:latest
 ### Ignition Configuration
 - Runs only on first boot
 - Provides initial configuration (users, services, rebase)
-- Can be fetched from URL or provided locally
+- Can be provided via fw_cfg (QEMU firmware config) or URLs
+- fw_cfg is recommended for UEFI/OVMF setups
 
 ### rpm-ostree
 - Package management for atomic systems
 - Supports layered packages
 - Atomic updates with rollback capability
+
+## Why Local File + fw_cfg?
+
+For Unraid VMs using UEFI/OVMF bootloader:
+
+| Method | Works with UEFI? | Complexity | Reliability |
+|--------|------------------|------------|-------------|
+| **Local File + fw_cfg** | ✅ Yes | Low | High ⭐ Recommended |
+| GitHub URL (kernel_args) | ❌ No | High | Low |
+| GitHub URL (grub) | ✅ Yes | Very High | Medium |
+| PXE/DHCP | ✅ Yes | Very High | Low |
+
+**Technical Reason:** UEFI bootloader doesn't pass kernel_args from libvirt XML. fw_cfg is a direct QEMU feature that bypasses bootloader limitations.
+
+See [github-vs-local-ignition.md](github-vs-local-ignition.md) for detailed explanation.
 
 ## Community & Support
 
@@ -126,6 +145,15 @@ This repository is personal. For BlueBuild templates and examples:
 - [blue-build/template](https://github.com/blue-build/template)
 - [ublue-os/image-template](https://github.com/ublue-os/image-template)
 
+## Image Registry
+
+Custom images are available at:
+```
+ghcr.io/waffleophagus/wafflosagus-ucore:latest
+ghcr.io/waffleophagus/wafflosagus-bazzite:latest
+ghcr.io/waffleophagus/wafflosagus-DX:latest
+```
+
 ## License
 
-This project follows the same license as BlueBuild templates.
+This project follows same license as BlueBuild templates.
