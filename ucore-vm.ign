@@ -1,1 +1,24 @@
-{"ignition":{"version":"3.4.0"},"passwd":{"users":[{"name":"clawdbot","sshAuthorizedKeys":["ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICfWxLwuoAmPHoXS4OMdRNz+e4lisJedtm6ElSHLb5Q8 waffleophagus@gmail.com"]}]}}
+{
+  "ignition": {
+    "version": "3.4.0"
+  },
+  "passwd": {
+    "users": [
+      {
+        "name": "clawdbot",
+        "sshAuthorizedKeys": [
+          "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAICfWxLwuoAmPHoXS4OMdRNz+e4lisJedtm6ElSHLb5Q8 waffleophagus@gmail.com"
+        ]
+      }
+    ]
+  },
+  "systemd": {
+    "units": [
+      {
+        "name": "rebase-to-wafflosagus.service",
+        "enabled": true,
+        "contents": "[Unit]\nDescription=Rebase to wafflosagus image\nConditionPathExists=/etc/ignition-machine-config\nAfter=network-online.target\nWants=network-online.target\n\n[Service]\nType=oneshot\nExecStart=/usr/bin/rpm-ostree rebase ostree-image-signed:docker://ghcr.io/waffleophagus/wafflosagus-ucore:latest\nExecStart=/usr/bin/systemctl reboot\n\n[Install]\nWantedBy=multi-user.target\n"
+      }
+    ]
+  }
+}
