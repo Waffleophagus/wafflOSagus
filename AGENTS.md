@@ -19,7 +19,7 @@ wafflOSagus is a custom Fedora Atomic image distribution built with BlueBuild. I
 ### Image Variants
 
 - `wafflosagus-ucore`: Server-focused, minimal footprint based on uCore
-- `wafflosagus-bazzite`: Gaming-focused with NVIDIA support
+- `wafflosagus-bazzite`: Gaming-focused with Gnome + cosmic
 - `wafflosagus-DX`: Desktop-focused with GNOME/COSMIC support
 
 ### Core Principles
