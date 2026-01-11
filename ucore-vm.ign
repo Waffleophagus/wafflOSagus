@@ -19,7 +19,7 @@
       {
         "name": "rebase-to-wafflosagus.service",
         "enabled": true,
-        "contents": "[Unit]\nDescription=Rebase to wafflosagus image\nConditionPathExists=/etc/ignition-machine-config\nAfter=network-online.target\nWants=network-online.target\n\n[Service]\nType=oneshot\nExecStart=/usr/bin/rpm-ostree rebase --bypass-driver ostree-image-signed:docker://ghcr.io/waffleophagus/wafflosagus-ucore:latest\nExecStart=/usr/bin/systemctl reboot\n\n[Install]\nWantedBy=multi-user.target\n"
+        "contents": "[Unit]\nDescription=Rebase to wafflosagus image\nConditionFirstBoot=yes\nAfter=network-online.target\nWants=network-online.target\n\n[Service]\nType=oneshot\nExecStart=/usr/bin/rpm-ostree rebase --bypass-driver ostree-image-signed:docker://ghcr.io/waffleophagus/wafflosagus-ucore:latest\nExecStart=/usr/bin/systemctl reboot\n\n[Install]\nWantedBy=multi-user.target\n"
       }
     ]
   }
