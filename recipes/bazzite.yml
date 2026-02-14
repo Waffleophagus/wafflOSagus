@@ -32,6 +32,7 @@ modules:
       - https://copr.fedorainfracloud.org/coprs/atim/starship/repo/fedora-%OS_VERSION%/atim-starship-fedora-%OS_VERSION%.repo
       #- https://copr.fedorainfracloud.org/coprs/ryanabx/cosmic-epoch/repo/fedora-%OS_VERSION%/ryanabx-cosmic-epoch-fedora-%OS_VERSION%.repo
       - https://download.docker.com/linux/fedora/docker-ce.repo
+      - https://repository.mullvad.net/rpm/stable/mullvad.repo
       - https://pkgs.tailscale.com/stable/fedora/tailscale.repo
       - https://raw.githubusercontent.com/Waffleophagus/wafflOSagus/refs/heads/main/repo-files/vscodium.repo
       - https://yum.tableplus.com/rpm/x86_64/tableplus.repo
@@ -50,6 +51,7 @@ modules:
       - docker-ce
       - docker-ce-cli
       - containerd.io
+      - mullvad-vpn
       - docker-buildx-plugin
       - docker-compose-plugin
       - tailscale
