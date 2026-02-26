@@ -55,6 +55,8 @@ modules:
       - docker-buildx-plugin
       - docker-compose-plugin
       - tailscale
+      - wtype
+      - wl-clipboard
     remove:
       # example: removing firefox (in favor of the flatpak)
       # "firefox" is the main package, "firefox-langpacks" is a dependency
@@ -67,10 +69,10 @@ modules:
       enabled:
         - docker.service
 
-  #- type: script
-  #  scripts:
-  # Custom changes for deckstation
-  #- install-cosmic.sh
+  - type: script
+    scripts:
+      - install-voxtype.sh
+      - install-openwhispr.sh
 
   - type: gnome-extensions
     install:
