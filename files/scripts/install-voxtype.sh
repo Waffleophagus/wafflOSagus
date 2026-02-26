@@ -1,9 +1,4 @@
 #!/usr/bin/env bash
 set -oue pipefail
 
-RELEASE_URL=$(curl -s https://api.github.com/repos/peteonrails/voxtype/releases/latest \
-  | grep "browser_download_url.*\.rpm" \
-  | cut -d '"' -f 4 \
-  | head -n 1)
-
-rpm-ostree install "$RELEASE_URL"
+rpm-ostree install https://github.com/peteonrails/voxtype/releases/download/v0.6.2/voxtype-0.6.2-1.x86_64.rpm

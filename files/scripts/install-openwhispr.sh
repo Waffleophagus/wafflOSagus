@@ -1,9 +1,4 @@
 #!/usr/bin/env bash
 set -oue pipefail
 
-RELEASE_URL=$(curl -s https://api.github.com/repos/OpenWhispr/openwhispr/releases/latest \
-  | grep "browser_download_url.*linux-amd64\.rpm" \
-  | cut -d '"' -f 4 \
-  | head -n 1)
-
-rpm-ostree install "$RELEASE_URL"
+rpm-ostree install https://github.com/OpenWhispr/openwhispr/releases/download/v1.5.4/OpenWhispr-1.5.4-linux-amd64.rpm
