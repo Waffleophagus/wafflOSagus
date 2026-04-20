@@ -30,7 +30,6 @@ modules:
   - type: rpm-ostree
     repos:
       - https://copr.fedorainfracloud.org/coprs/atim/starship/repo/fedora-%OS_VERSION%/atim-starship-fedora-%OS_VERSION%.repo
-      - https://copr.fedorainfracloud.org/coprs/pete/voxtype/repo/fedora-%OS_VERSION%/pete-voxtype-fedora-%OS_VERSION%.repo
       #- https://copr.fedorainfracloud.org/coprs/ryanabx/cosmic-epoch/repo/fedora-%OS_VERSION%/ryanabx-cosmic-epoch-fedora-%OS_VERSION%.repo
       - https://download.docker.com/linux/fedora/docker-ce.repo
       - https://repository.mullvad.net/rpm/stable/mullvad.repo
@@ -47,7 +46,7 @@ modules:
       - tableplus
       - tldr
       - xclip
-      - voxtype
+      - https://github.com/peteonrails/voxtype/releases/latest/download/voxtype-0.6.5-1.x86_64.rpm
       - https://github.com/OpenWhispr/openwhispr/releases/latest/download/OpenWhispr-1.6.10-linux-x86_64.rpm
       #- cosmic-desktop
       - docker-ce
