@@ -41,7 +41,6 @@ modules:
       - https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/yum/RPM-GPG-KEY-windsurf
     install:
       - micro
-      - windsurf
       - codium
       - starship
       - tableplus
