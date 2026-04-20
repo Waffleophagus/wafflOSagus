@@ -48,6 +48,7 @@ modules:
       - tldr
       - xclip
       - voxtype
+      - https://github.com/OpenWhispr/openwhispr/releases/latest/download/OpenWhispr-linux-x86_64.rpm
       #- cosmic-desktop
       - docker-ce
       - docker-ce-cli
@@ -70,10 +71,6 @@ modules:
     system:
       enabled:
         - docker.service
-
-  - type: script
-    scripts:
-      - install-openwhispr.sh
 
   - type: gnome-extensions
     install:
