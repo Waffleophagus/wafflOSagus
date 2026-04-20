@@ -50,6 +50,7 @@ modules:
       #- cosmic-desktop
       - docker-ce
       - docker-ce-cli
+      - https://github.com/anomalyco/opencode/releases/latest/download/opencode-desktop-linux-x86_64.rpm
       - containerd.io
       - mullvad-browser
       - docker-buildx-plugin
@@ -103,4 +104,3 @@ modules:
         install: []
 
   - type: signing # this sets up the proper policy & signing files for signed images to work fully
-
