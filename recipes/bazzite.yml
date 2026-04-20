@@ -46,7 +46,7 @@ modules:
       - tableplus
       - tldr
       - xclip
-      - https://github.com/peteonrails/voxtype/releases/latest/download/voxtype-0.6.5-1.x86_64.rpm
+      - https://github.com/peteonrails/voxtype/releases/download/v0.6.5/voxtype-0.6.5-1.x86_64.rpm
       - https://github.com/OpenWhispr/openwhispr/releases/latest/download/OpenWhispr-1.6.10-linux-x86_64.rpm
       #- cosmic-desktop
       - docker-ce
