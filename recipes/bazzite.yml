@@ -75,7 +75,7 @@ modules:
     install:
       # - AppIndicator and KStatusNotifierItem Support
       - Auto Power Profile
-      - Battery Usage Wattmeter
+      #- Battery Usage Wattmeter
       - Blur my Shell
       - Dash to Dock
       #- Forge
