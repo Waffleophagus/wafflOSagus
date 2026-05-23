@@ -36,6 +36,7 @@ modules:
       - sqlite
       - sqlite-devel
       - sqlite-tcl
+      - pnpm
   - type: script
 
   - type: signing # this sets up the proper policy & signing files for signed images to work fully
