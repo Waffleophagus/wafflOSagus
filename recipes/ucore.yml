@@ -37,8 +37,6 @@ modules:
       - sqlite-devel
       - sqlite-tcl
       - pnpm
-      - gcc-c++
-      - make
       - golang
   - type: script
 
