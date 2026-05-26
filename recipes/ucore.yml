@@ -37,6 +37,9 @@ modules:
       - sqlite-devel
       - sqlite-tcl
       - pnpm
+      - gcc
+      - libgcc
+      - libatomic
       - golang
   - type: script
 
