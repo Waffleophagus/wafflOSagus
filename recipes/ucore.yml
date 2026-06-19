@@ -40,7 +40,7 @@ modules:
       #- gcc
       - libgcc
       #- libatomic
-      - golang
+      #- golang
       - btop
   - type: script
 
