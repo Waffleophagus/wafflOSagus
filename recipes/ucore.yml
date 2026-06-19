@@ -34,9 +34,10 @@ modules:
       - chromium
       - wl-clipboard
       - sqlite
-      - sqlite-devel
+      #- sqlite-devel
       - sqlite-tcl
       - pnpm
+      #- gcc
       - libgcc
       - libatomic
       - golang
