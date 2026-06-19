@@ -39,7 +39,7 @@ modules:
       - pnpm
       #- gcc
       - libgcc
-      - libatomic
+      #- libatomic
       - golang
       - btop
   - type: script
