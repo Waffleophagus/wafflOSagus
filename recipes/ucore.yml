@@ -37,11 +37,12 @@ modules:
       #- sqlite-devel
       - sqlite-tcl
       - pnpm
-      #- gcc
+      - gcc
+      - gcc-c++
       - libgcc
+      - btop
       #- libatomic
       #- golang
-      - btop
   - type: script
     scripts:
       - install-go.sh
