@@ -36,9 +36,6 @@ modules:
       - https://pkgs.tailscale.com/stable/fedora/tailscale.repo
       - https://raw.githubusercontent.com/Waffleophagus/wafflOSagus/refs/heads/main/repo-files/vscodium.repo
       - https://yum.tableplus.com/rpm/x86_64/tableplus.repo
-      - https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/yum/windsurf.repo
-    keys:
-      - https://windsurf-stable.codeiumdata.com/wVxQEIWkwPUEAGf3/yum/RPM-GPG-KEY-windsurf
     install:
       - micro
       - codium
@@ -98,5 +95,9 @@ modules:
       - notify: true
         scope: user
         install: []
+
+  - type: script
+    scripts:
+      - bake-input-group.sh
 
   - type: signing # this sets up the proper policy & signing files for signed images to work fully
