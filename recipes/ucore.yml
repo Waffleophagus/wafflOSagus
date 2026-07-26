@@ -46,5 +46,9 @@ modules:
   - type: script
     scripts:
       - install-go.sh
+  - type: kargs
+    arch: x86_64
+    kargs:
+      - reboot=acpi
 
   - type: signing # this sets up the proper policy & signing files for signed images to work fully
