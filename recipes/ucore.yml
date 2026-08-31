@@ -37,8 +37,8 @@ modules:
       #- sqlite-devel
       - sqlite-tcl
       - pnpm
-      - gcc
-      - gcc-c++
+      # - gcc
+      # - gcc-c++
       - libgcc
       - btop
       #- libatomic
