@@ -19,30 +19,33 @@ modules:
       - source: ucore-system
         destination: / # ucore-specific files (install-brew-user.sh)
 
-  - type: rpm-ostree
+  - type: dnf
     repos:
-      - https://copr.fedorainfracloud.org/coprs/atim/starship/repo/fedora-%OS_VERSION%/atim-starship-fedora-%OS_VERSION%.repo
-      - https://pkgs.tailscale.com/stable/fedora/tailscale.repo
+      files:
+        - https://copr.fedorainfracloud.org/coprs/atim/starship/repo/fedora-%OS_VERSION%/atim-starship-fedora-%OS_VERSION%.repo
+        - https://pkgs.tailscale.com/stable/fedora/tailscale.repo
     install:
-      - tailscale
-      - tldr
-      - zoxide
-      - fish
-      - starship
-      - nodejs-npm
-      - unzip
-      - chromium
-      - wl-clipboard
-      - sqlite
-      #- sqlite-devel
-      - sqlite-tcl
-      - pnpm
-      # - gcc
-      # - gcc-c++
-      - libgcc
-      - btop
-      #- libatomic
-      #- golang
+      packages:
+        - tailscale
+        - tldr
+        - zoxide
+        - fish
+        - starship
+        - nodejs-npm
+        - unzip
+        - chromium
+        - wl-clipboard
+        - sqlite
+        #- sqlite-devel
+        - sqlite-tcl
+        - pnpm
+        - make
+        - gcc
+        - gcc-c++
+        - libgcc
+        - btop
+        #- libatomic
+        #- golang
   - type: script
     scripts:
       - install-go.sh
