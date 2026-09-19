@@ -23,6 +23,7 @@ modules:
     repos:
       files:
         - https://copr.fedorainfracloud.org/coprs/atim/starship/repo/fedora-%OS_VERSION%/atim-starship-fedora-%OS_VERSION%.repo
+        - https://copr.fedorainfracloud.org/coprs/lihaohong/forgejo-cli/repo/fedora-%OS_VERSION%/lihaohong-forgejo-cli-fedora-%OS_VERSION%.repo
         - https://pkgs.tailscale.com/stable/fedora/tailscale.repo
     install:
       packages:
@@ -44,6 +45,7 @@ modules:
         - gcc-c++
         - libgcc
         - btop
+        - forgejo-cli
         #- libatomic
         #- golang
   - type: script
