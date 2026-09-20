@@ -1,0 +1,115 @@
+name: hex-rpm
+
+# Builds a system-wide RPM for anomalyco/hex and publishes it to the fixed
+# release URL the image recipe installs:
+#   https://github.com/Waffleophagus/wafflOSagus/releases/download/hex-latest/hex.x86_64.rpm
+#
+# Upstream's Linux build is not always green on main, so by default this job
+# builds the newest anomalyco/hex commit whose own "Check Linux" workflow
+# succeeded. That tracks the latest buildable hex and self-heals once upstream
+# fixes main. If a build fails, the last good RPM stays published and the image
+# keeps installing it.
+#
+# The image build (.github/workflows/build.yml) runs at 06:00 UTC, so this job
+# runs earlier the same morning to keep "latest" fresh.
+on:
+  schedule:
+    - cron: "30 4 * * *"
+  workflow_dispatch:
+    inputs:
+      ref:
+        description: "anomalyco/hex ref to build, or 'latest-buildable' to auto-pick"
+        required: false
+        default: latest-buildable
+  push:
+    branches:
+      - main
+    paths:
+      - ".github/workflows/hex-rpm.yml"
+      - ".github/scripts/build-hex-rpm.sh"
+
+concurrency:
+  group: hex-rpm
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+env:
+  # Fallback if upstream's Actions API is unavailable: last commit known to pass
+  # anomalyco/hex "Check Linux".
+  PINNED_HEX_SHA: cd3a8d9f660e27ab243087a702667f03e02938e0
+
+jobs:
+  build:
+    name: Build hex RPM
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout build scripts
+        uses: actions/checkout@v4
+        with:
+          path: ci
+
+      - name: Resolve hex revision
+        id: resolve
+        env:
+          GH_TOKEN: ${{ github.token }}
+          INPUT_REF: ${{ github.event.inputs.ref }}
+        run: |
+          set -eu
+          ref=${INPUT_REF:-latest-buildable}
+          if [ "$ref" = "latest-buildable" ]; then
+            query="repos/anomalyco/hex/actions/workflows/check-linux.yml/runs?branch=main&status=completed&per_page=20"
+            sha=$(gh api "$query" \
+              --jq '[.workflow_runs[] | select(.conclusion == "success")][0].head_sha // empty' \
+              2>/dev/null || true)
+            if [ -z "$sha" ]; then
+              sha=$(curl -sS --max-time 20 "https://api.github.com/$query" \
+                | jq -r '[.workflow_runs[] | select(.conclusion == "success")][0].head_sha // empty' \
+                2>/dev/null || true)
+            fi
+            [ -n "$sha" ] || sha=$PINNED_HEX_SHA
+            echo "Upstream Linux build last passed at $sha"
+            ref=$sha
+          fi
+          echo "ref=$ref" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout hex source
+        uses: actions/checkout@v4
+        with:
+          repository: anomalyco/hex
+          ref: ${{ steps.resolve.outputs.ref }}
+          path: hex-src
+
+      - name: Record built revision
+        id: hex
+        run: echo "sha=$(git -C hex-src rev-parse HEAD)" >> "$GITHUB_OUTPUT"
+
+      - name: Build RPM in Fedora 44
+        run: |
+          docker run --rm \
+            -v "${{ github.workspace }}:/work" \
+            -e HEX_OUT=/work/ci/dist \
+            -w /work/hex-src \
+            fedora:44 \
+            bash /work/ci/.github/scripts/build-hex-rpm.sh
+
+      - name: Publish hex-latest release
+        uses: softprops/action-gh-release@v2
+        with:
+          tag_name: hex-latest
+          name: hex (latest Linux RPM)
+          make_latest: false
+          overwrite_files: true
+          files: ci/dist/hex.x86_64.rpm
+          body: |
+            Automated Fedora 44 x86_64 RPM for HEX, built from
+            `anomalyco/hex@${{ steps.hex.outputs.sha }}`.
+
+            Installed by `recipes/bazzite.yml` from this fixed URL:
+
+            ```
+            https://github.com/Waffleophagus/wafflOSagus/releases/download/hex-latest/hex.x86_64.rpm
+            ```
+
+            Models are installed per user with `hex model install`.

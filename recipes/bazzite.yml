@@ -58,6 +58,12 @@ modules:
       - tailscale
       - wtype
       - wl-clipboard
+      # Runtime libraries for hex (https://github.com/anomalyco/hex).
+      - gtk-layer-shell
+      - openblas
+      # Prebuilt daily by .github/workflows/hex-rpm.yml into the fixed
+      # hex-latest release (latest buildable anomalyco/hex commit, Fedora 44).
+      - https://github.com/Waffleophagus/wafflOSagus/releases/download/hex-latest/hex.x86_64.rpm
     #remove:
     # example: removing firefox (in favor of the flatpak)
     # "firefox" is the main package, "firefox-langpacks" is a dependency
