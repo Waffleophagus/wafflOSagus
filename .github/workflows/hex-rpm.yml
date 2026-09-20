@@ -10,6 +10,11 @@ name: hex-rpm
 # fixes main. If a build fails, the last good RPM stays published and the image
 # keeps installing it.
 #
+# The build container's Fedora version is taken from the recipe's base image
+# (recipes/bazzite.yml -> ghcr.io/ublue-os/bazzite-gnome:stable), so the RPM is
+# always linked against the same glibc/sonames as the image it lands in. Building
+# on a newer Fedora than the base would produce a binary the image cannot run.
+#
 # The image build (.github/workflows/build.yml) runs at 06:00 UTC, so this job
 # runs earlier the same morning to keep "latest" fresh.
 on:
@@ -27,6 +32,8 @@ on:
     paths:
       - ".github/workflows/hex-rpm.yml"
       - ".github/scripts/build-hex-rpm.sh"
+      - ".github/scripts/hex.service"
+      - ".github/scripts/hex-autostart.desktop"
 
 concurrency:
   group: hex-rpm
@@ -39,6 +46,8 @@ env:
   # Fallback if upstream's Actions API is unavailable: last commit known to pass
   # anomalyco/hex "Check Linux".
   PINNED_HEX_SHA: cd3a8d9f660e27ab243087a702667f03e02938e0
+  # Fallback if the base image's Fedora version cannot be read.
+  FALLBACK_FEDORA_VERSION: "44"
 
 jobs:
   build:
@@ -74,6 +83,26 @@ jobs:
           fi
           echo "ref=$ref" >> "$GITHUB_OUTPUT"
 
+      - name: Resolve base Fedora version
+        id: fedora
+        run: |
+          set -eu
+          recipe=ci/recipes/bazzite.yml
+          base=$(awk '/^base-image:/ { print $2; exit }' "$recipe")
+          tag=$(awk '/^image-version:/ { print $2; exit }' "$recipe")
+          if [ -z "$base" ] || [ -z "$tag" ]; then
+            echo "Could not read base-image/image-version from $recipe" >&2
+            exit 1
+          fi
+          version=$(docker run --rm quay.io/skopeo/stable inspect --config "docker://${base}:${tag}" \
+            | jq -r '.config.Labels["org.opencontainers.image.version"] // empty' \
+            | cut -d. -f1 || true)
+          if ! printf '%s' "$version" | grep -Eq '^[0-9]+$'; then
+            version=$FALLBACK_FEDORA_VERSION
+          fi
+          echo "version=$version" >> "$GITHUB_OUTPUT"
+          echo "Building against Fedora $version (base ${base}:${tag})"
+
       - name: Checkout hex source
         uses: actions/checkout@v4
         with:
@@ -85,13 +114,13 @@ jobs:
         id: hex
         run: echo "sha=$(git -C hex-src rev-parse HEAD)" >> "$GITHUB_OUTPUT"
 
-      - name: Build RPM in Fedora 44
+      - name: Build RPM in Fedora ${{ steps.fedora.outputs.version }}
         run: |
           docker run --rm \
             -v "${{ github.workspace }}:/work" \
             -e HEX_OUT=/work/ci/dist \
             -w /work/hex-src \
-            fedora:44 \
+            fedora:${{ steps.fedora.outputs.version }} \
             bash /work/ci/.github/scripts/build-hex-rpm.sh
 
       - name: Publish hex-latest release
@@ -103,7 +132,7 @@ jobs:
           overwrite_files: true
           files: ci/dist/hex.x86_64.rpm
           body: |
-            Automated Fedora 44 x86_64 RPM for HEX, built from
+            Automated Fedora ${{ steps.fedora.outputs.version }} x86_64 RPM for HEX, built from
             `anomalyco/hex@${{ steps.hex.outputs.sha }}`.
 
             Installed by `recipes/bazzite.yml` from this fixed URL:

@@ -5,15 +5,28 @@
 # current working directory to be a checkout of anomalyco/hex. The finished RPM
 # is written to $HEX_OUT as hex.x86_64.rpm with a stable name so the recipe can
 # reference a fixed release URL.
+#
+# Besides the binary and launcher, the RPM ships a system-wide user unit
+# (/usr/lib/systemd/user/hex.service) and an XDG autostart entry, so the
+# background service works without HEX's own per-user installer. Those live next
+# to this script as hex.service and hex-autostart.desktop.
 set -euo pipefail
 
 src=$PWD
 out=${HEX_OUT:-/out}
+script_dir=$(CDPATH='' cd -- "$(dirname -- "$0")" && pwd)
 
 if [ ! -f "$src/Cargo.toml" ]; then
   echo "Cargo.toml not found in $src; run from a hex checkout." >&2
   exit 1
 fi
+
+for file in hex.service hex-autostart.desktop; do
+  if [ ! -f "$script_dir/$file" ]; then
+    echo "Missing packaging file: $script_dir/$file" >&2
+    exit 1
+  fi
+done
 
 version=$(sed -n 's/^version = "\([^"]*\)"/\1/p' "$src/Cargo.toml" | head -1)
 if [ -z "$version" ]; then
@@ -48,6 +61,8 @@ fi
 topdir=$src/rpmbuild
 mkdir -p "$topdir"/{BUILD,RPMS,SOURCES,SPECS,SRPMS} "$out"
 install -m0644 "$src/packaging/hex.desktop" "$topdir/SOURCES/hex.desktop"
+install -m0644 "$script_dir/hex.service" "$topdir/SOURCES/hex.service"
+install -m0644 "$script_dir/hex-autostart.desktop" "$topdir/SOURCES/hex-autostart.desktop"
 
 cat > "$topdir/SPECS/hex.spec" <<SPEC
 %global debug_package %{nil}
@@ -80,10 +95,14 @@ installed per user with \`hex model install\`.
 install -Dpm0755 $binary %{buildroot}%{_bindir}/hex
 install -Dpm0644 $topdir/SOURCES/hex.desktop %{buildroot}%{_datadir}/applications/hex.desktop
 sed -i 's|@HEX_BIN@|%{_bindir}/hex|' %{buildroot}%{_datadir}/applications/hex.desktop
+install -Dpm0644 $topdir/SOURCES/hex.service %{buildroot}%{_prefix}/lib/systemd/user/hex.service
+install -Dpm0644 $topdir/SOURCES/hex-autostart.desktop %{buildroot}%{_sysconfdir}/xdg/autostart/hex.desktop
 
 %files
 %{_bindir}/hex
 %{_datadir}/applications/hex.desktop
+%{_prefix}/lib/systemd/user/hex.service
+%{_sysconfdir}/xdg/autostart/hex.desktop
 SPEC
 
 echo "==> Packaging RPM"

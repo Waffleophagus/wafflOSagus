@@ -1,0 +1,29 @@
+# System-wide user unit for the hex RPM.
+#
+# Installed to /usr/lib/systemd/user/hex.service so every user on the image can
+# run `hex start` / `hex app` without HEX's own per-user installer, which we
+# bypass. Mirrors the unit upstream's install-linux-release.sh writes into
+# ~/.config/systemd/user/, but uses %h so one file works for all users.
+#
+# Note: this is a user unit, not a system daemon. It is pulled into the desktop
+# session by the XDG autostart entry that runs `hex start`, and by
+# WantedBy=graphical-session.target if a user enables it explicitly.
+[Unit]
+Description=HEX background dictation
+PartOf=graphical-session.target
+After=graphical-session.target
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/hex service
+Environment=HEX_APPLICATION_SUPPORT_DIR=%h/.local/share/voice-control
+EnvironmentFile=-%h/.local/share/voice-control/session.env
+Restart=on-failure
+RestartSec=3
+TimeoutStopSec=30
+UMask=0077
+
+[Install]
+WantedBy=graphical-session.target
