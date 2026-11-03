@@ -22,10 +22,12 @@ modules:
       cleanup: true
       copr:
         - ryanabx/cosmic-epoch
+        - imput/helium # Helium browser (https://helium.computer)
     install:
       packages:
         - cosmic-desktop
         - https://bitwarden.com/download/?app=desktop&platform=linux&variant=rpm
+        - helium-bin # installs to /opt/helium; BlueBuild relocates /opt automatically
 
   - type: rpm-ostree
     repos:
