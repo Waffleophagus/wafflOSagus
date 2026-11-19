@@ -103,7 +103,7 @@ wafflOSagus is built using BlueBuild and can be deployed to:
 
 ### Atomic/Immutable Systems
 - System files cannot be modified at runtime
-- Updates via rpm-ostree with rollback capability
+- Updates via bootc with rollback capability
 - Signed images with SecureBoot support
 
 ### Ignition Configuration
@@ -112,10 +112,10 @@ wafflOSagus is built using BlueBuild and can be deployed to:
 - Can be provided via fw_cfg (QEMU firmware config) or URLs
 - fw_cfg is recommended for UEFI/OVMF setups
 
-### rpm-ostree
-- Package management for atomic systems
-- Supports layered packages
-- Atomic updates with rollback capability
+### bootc
+- Images are plain OCI containers; packages are added at build time with dnf
+- `bootc switch` moves a system to an image, `bootc upgrade` pulls the latest build
+- Atomic updates with rollback capability (`bootc rollback`)
 
 ## Why Local File + fw_cfg?
 

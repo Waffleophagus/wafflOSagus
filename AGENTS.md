@@ -26,5 +26,5 @@ wafflOSagus is a custom Fedora Atomic image distribution built with BlueBuild. I
 
 - **Immutability**: System files cannot be modified at runtime, ensuring consistency
 - **Container-First**: Services run in containers using podman
-- **Atomic Updates**: Full system updates via rpm-ostree with rollback capability
+- **Atomic Updates**: Full system updates via bootc with rollback capability
 - **Security**: Signed images, SELinux enforcement, SecureBoot support

@@ -28,8 +28,8 @@ virsh list --all                      # List all VMs
 ### Inside VM (clawdbot@vm)
 ```bash
 # System management
-rpm-ostree status                   # Check deployment
-rpm-ostree upgrade                   # Update system
+bootc status                        # Check deployment
+sudo bootc upgrade                  # Update system
 sudo systemctl reboot                  # Reboot
 sudo journalctl -u <service>          # Check service logs
 
@@ -230,19 +230,19 @@ ip route show
 2. **fw_cfg is required** - UEFI doesn't support kernel_args from libvirt XML
 3. **SELinux context is critical** - must be `svirt_home_t`
 4. **Auto-reboot is part of design** - system will restart automatically
-5. **Rebase is one-time operation** - updates use `rpm-ostree upgrade`
+5. **Rebase is one-time operation** - updates use `sudo bootc upgrade`
 6. **SSH is primary access method** - VNC for troubleshooting only
-7. **wafflOSagus image is immutable** - layered via rpm-ostree
+7. **wafflOSagus image is immutable** - built as an OCI container image with BlueBuild
 8. **Local file is more reliable** than GitHub URL approach
 
 ## Post-Deploy Checklist
 
 - [ ] Verify VM boots successfully
 - [ ] SSH as clawdbot works
-- [ ] `rpm-ostree status` shows wafflOSagus image
+- [ ] `bootc status` shows wafflOSagus image
 - [ ] Network connectivity works (ping external host)
 - [ ] Remove qemu:commandline from XML (cleanup)
-- [ ] Test system update: `rpm-ostree upgrade`
+- [ ] Test system update: `sudo bootc upgrade`
 - [ ] Create snapshot for rollback safety
 - [ ] Document any custom configurations
 

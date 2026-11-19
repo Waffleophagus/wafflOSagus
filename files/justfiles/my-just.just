@@ -41,11 +41,11 @@ arcDPS-remove:
 
 #Bluefin
 rebase-bluefin:
-   rpm-ostree rebase ostree-image-signed:docker://ghcr.io/waffleophagus/wafflosagus-bluefin-dx:latest
+   sudo bootc switch --enforce-container-sigpolicy ghcr.io/waffleophagus/wafflosagus-bluefin-dx:latest
    
 #Bazzite
 rebase-bazzite:
-   rpm-ostree rebase ostree-image-signed:docker://ghcr.io/waffleophagus/wafflosagus-bazzite:latest
+   sudo bootc switch --enforce-container-sigpolicy ghcr.io/waffleophagus/wafflosagus-bazzite:latest
 
 # Ptyxis terminal transparency
 ptyxis-transparency opacity="0.95":

@@ -133,7 +133,7 @@ Configure libvirt to pass ignition file via QEMU's fw_cfg mechanism:
 
 2. Verify wafflOSagus is running:
    ```bash
-   rpm-ostree status
+   bootc status
    ```
    Should show image: `ghcr.io/waffleophagus/wafflosagus-ucore:latest`
 
@@ -212,7 +212,7 @@ Configure libvirt to pass ignition file via QEMU's fw_cfg mechanism:
 2. Check if image is public or if authentication is needed
 3. Ensure network connectivity persists through rebase
 4. Check `/var/log/messages` for detailed error logs
-5. Try manual rebase: `sudo rpm-ostree rebase ostree-image-signed:docker://ghcr.io/waffleophagus/wafflosagus-ucore:latest`
+5. Try manual rebase: `sudo bootc switch --enforce-container-sigpolicy ghcr.io/waffleophagus/wafflosagus-ucore:latest`
 
 ### Issue: System Doesn't Auto-Reboot
 
@@ -278,16 +278,16 @@ Configure libvirt to pass ignition file via QEMU's fw_cfg mechanism:
 
 ### Updating wafflOSagus Image
 
-Since wafflOSagus is built with BlueBuild and updated via rpm-ostree:
+Since wafflOSagus is built with BlueBuild and updated via bootc:
 
 1. Check for updates:
    ```bash
-   rpm-ostree status
+   bootc status
    ```
 
 2. Update system:
    ```bash
-   sudo rpm-ostree upgrade
+   sudo bootc upgrade
    ```
 
 3. Reboot after update:
@@ -380,10 +380,10 @@ virsh console wafflosagus-ucore
 ### From Inside VM (clawdbot user)
 ```bash
 # Check current deployment
-rpm-ostree status
+bootc status
 
 # Update system
-sudo rpm-ostree upgrade
+sudo bootc upgrade
 
 # Check service status
 systemctl status <service-name>
@@ -416,7 +416,7 @@ To update the ignition configuration:
 - [Fedora CoreOS Ignition Documentation](https://docs.fedoraproject.org/en-US/fedora-coreos/getting-started/)
 - [BlueBuild Documentation](https://blue-build.org/)
 - [Unraid VM Documentation](https://docs.unraid.net/unraid-os/using-unraid-to/create-virtual-machines/vm-setup/)
-- [rpm-ostree Documentation](https://coreos.github.io/rpm-ostree/)
+- [bootc Documentation](https://bootc-dev.github.io/bootc/)
 - [QEMU fw_cfg Documentation](https://docs.fedoraproject.org/en-US/fedora-coreos/provisioning-qemu/)
 
 ## Changelog

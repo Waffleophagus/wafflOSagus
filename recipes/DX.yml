@@ -21,35 +21,38 @@ modules:
       - source: system
         destination: / # copies files/system/* (* means everything inside it) into your image's root folder /
 
-  - type: rpm-ostree
+  - type: dnf
     repos:
-      - https://copr.fedorainfracloud.org/coprs/atim/starship/repo/fedora-%OS_VERSION%/atim-starship-fedora-%OS_VERSION%.repo
-      #- https://copr.fedorainfracloud.org/coprs/ryanabx/cosmic-epoch/repo/fedora-%OS_VERSION%/ryanabx-cosmic-epoch-fedora-%OS_VERSION%.repo
-      - https://download.docker.com/linux/fedora/docker-ce.repo
-      #- https://pkgs.tailscale.com/stable/fedora/tailscale.repo
-      #- https://raw.githubusercontent.com/Waffleophagus/wafflOSagus/refs/heads/main/repo-files/vscodium.repo
-      - https://yum.tableplus.com/rpm/x86_64/tableplus.repo
+      copr:
+        - atim/starship
+        #- ryanabx/cosmic-epoch
+      files:
+        - https://download.docker.com/linux/fedora/docker-ce.repo
+        #- https://pkgs.tailscale.com/stable/fedora/tailscale.repo
+        #- https://raw.githubusercontent.com/Waffleophagus/wafflOSagus/refs/heads/main/repo-files/vscodium.repo
+        - https://yum.tableplus.com/rpm/x86_64/tableplus.repo
     install:
-      - micro
-      #- codium
-      - starship
-      - tableplus
-      - tldr
-      - xclip
-      #- cosmic-desktop
-      #- docker-ce
-      #- docker-ce-cli
-      #- containerd.io
-      #- docker-buildx-plugin
-      #- docker-compose-plugin
-      #- tailscale
+      packages:
+        - micro
+        #- codium
+        - starship
+        - tableplus
+        - tldr
+        - xclip
+        #- cosmic-desktop
+        #- docker-ce
+        #- docker-ce-cli
+        #- containerd.io
+        #- docker-buildx-plugin
+        #- docker-compose-plugin
+        #- tailscale
     #remove:
-    # example: removing firefox (in favor of the flatpak)
-    # "firefox" is the main package, "firefox-langpacks" is a dependency
-    #- firefox
-    #- firefox-langpacks # also remove firefox dependency (not required for all packages, this is a special case)
-    #- waydroid
-    #- waydroid-selinux
+    #  packages:
+    #    # example: removing firefox (in favor of the flatpak)
+    #    - firefox
+    #    - firefox-langpacks
+    #    - waydroid
+    #    - waydroid-selinux
   - type: script
     scripts:
       # Custom changes for deckstation
