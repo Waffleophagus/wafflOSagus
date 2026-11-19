@@ -96,7 +96,7 @@
 
 - [ ] Verify wafflOSagus image:
   ```bash
-  rpm-ostree status
+  bootc status
   ```
   Should show: `ghcr.io/waffleophagus/wafflosagus-ucore:latest`
 
@@ -107,7 +107,7 @@
 
 - [ ] Test system update:
   ```bash
-  sudo rpm-ostree upgrade
+  sudo bootc upgrade
   ```
 
 ## Phase 8: Cleanup
@@ -199,7 +199,7 @@
 
 - [ ] Try manual rebase from console:
   ```bash
-  sudo rpm-ostree rebase ostree-image-signed:docker://ghcr.io/waffleophagus/wafflosagus-ucore:latest
+  sudo bootc switch --enforce-container-sigpolicy ghcr.io/waffleophagus/wafflosagus-ucore:latest
   ```
 
 - [ ] Check `/var/log/messages` for detailed errors
@@ -250,7 +250,7 @@
 - [ ] Rebase to wafflOSagus completed
 - [ ] Auto-reboot occurred
 - [ ] SSH as `clawdbot` works
-- [ ] `rpm-ostree status` shows correct image
+- [ ] `bootc status` shows correct image
 - [ ] Network connectivity verified
 - [ ] qemu:commandline removed from XML
 - [ ] Baseline snapshot created (optional)
@@ -269,7 +269,7 @@ After successful deployment, consider:
 
 ### Ongoing Maintenance
 
-- [ ] Schedule regular updates via `rpm-ostree upgrade`
+- [ ] Schedule regular updates via `sudo bootc upgrade`
 - [ ] Keep backups/snapshots before major changes
 - [ ] Monitor disk space usage
 - [ ] Review logs periodically
@@ -286,10 +286,10 @@ After successful deployment, consider:
 
 You're done when:
 - ✅ You can SSH as `clawdbot`
-- ✅ `rpm-ostree status` shows wafflOSagus
+- ✅ `bootc status` shows wafflOSagus
 - ✅ No ignition errors in VNC console
 - ✅ Network connectivity works
-- ✅ System updates via rpm-ostree
+- ✅ System updates via bootc
 - ✅ Ignition config removed from XML
 - ✅ SELinux context correct on ignition file
 
