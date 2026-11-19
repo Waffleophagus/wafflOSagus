@@ -30,6 +30,7 @@ virsh list --all                      # List all VMs
 # System management
 bootc status                        # Check deployment
 sudo bootc upgrade                  # Update system
+sudo rpm-ostree upgrade             # Update system if packages were layered with rpm-ostree install (bootc refuses)
 sudo systemctl reboot                  # Reboot
 sudo journalctl -u <service>          # Check service logs
 

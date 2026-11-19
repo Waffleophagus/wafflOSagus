@@ -29,6 +29,8 @@ To switch an existing Fedora Atomic / Universal Blue installation to a build (ex
 
 After that, `sudo bootc upgrade` pulls new builds and `bootc status` shows what you're running.
 
+> **Layered packages:** packages added with `rpm-ostree install` are not carried over by `bootc switch`, and `bootc upgrade` refuses to run while any are present ("Deployment contains local rpm-ostree modifications"). Add them to the recipe instead, then run `sudo rpm-ostree reset` to drop the local layers. Until then, `sudo rpm-ostree upgrade` still works.
+
 The `latest` tag always points to the newest build. It follows the base image's `image-version` in the recipe (`stable`), so major Fedora upgrades arrive when the upstream `stable` tag moves.
 
 ## ISO
